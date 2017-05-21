@@ -125,8 +125,8 @@ if sys.version_info >= (3,):
     STR_TYPES = (str,)
     xrange = range
 else:
-    INT_TYPES = (int, long)
-    STR_TYPES = (str, unicode)
+    INT_TYPES = (int, int)
+    STR_TYPES = (str, str)
 
 
 class IPint(object):
@@ -384,7 +384,7 @@ class IPint(object):
             # every element of followingzeros will contain the number of zeros
             # following the corresponding element of hextets
             followingzeros = [0] * 8
-            for i in xrange(len(hextets)):
+            for i in range(len(hextets)):
                 followingzeros[i] = _countFollowingZeros(hextets[i:])
             # compressionpos is the position where we can start removing zeros
             compressionpos = followingzeros.index(max(followingzeros))
@@ -497,7 +497,7 @@ class IPint(object):
             raise ValueError("only IPv4 and IPv6 supported")
 
         bits = self.strBin()
-        for i in xrange(len(bits), 0, -1):
+        for i in range(len(bits), 0, -1):
             if bits[:i] in iprange:
                 return iprange[bits[:i]]
         return "unknown"
@@ -549,7 +549,7 @@ class IPint(object):
         return 2 ** locallen
 
 
-    def __nonzero__(self):
+    def __bool__(self):
         """All IPy objects should evaluate to true in boolean context.
         Ordinarily they do, but if handling a default route expressed as
         0.0.0.0/0, the __len__() of the object becomes 0, which is used
@@ -857,13 +857,13 @@ class IP(IPint):
                 for x in self:
                     ret.append(x.reverseName())
             elif self.len() < 2**16:
-                for i in xrange(0, self.len(), 2**8):
+                for i in range(0, self.len(), 2**8):
                     ret.append(self[i].reverseName()[2:])
             elif self.len() < 2**24:
-                for i in xrange(0, self.len(), 2**16):
+                for i in range(0, self.len(), 2**16):
                     ret.append(self[i].reverseName()[4:])
             else:
-                for i in xrange(0, self.len(), 2**24):
+                for i in range(0, self.len(), 2**24):
                     ret.append(self[i].reverseName()[6:])
             return ret
         elif self._ipversion == 6:
@@ -1033,7 +1033,7 @@ class IPSet(IPSetBaseClass):
         self.optimize()
             
     def __contains__(self, ip):
-        valid_masks = self.prefixtable.keys()
+        valid_masks = list(self.prefixtable.keys())
         if isinstance(ip, IP):
             #Don't dig through more-specific ranges
             ip_mask = ip._prefixlen
@@ -1405,7 +1405,7 @@ def intToIp(ip, version):
     if version == 4:
         if ip > MAX_IPV4_ADDRESS:
             raise ValueError("IPv4 Address can't be larger than %x: %x" % (MAX_IPV4_ADDRESS, ip))
-        for l in xrange(4):
+        for l in range(4):
             ret = str(ip & 0xff) + '.' + ret
             ip = ip >> 8
         ret = ret[:-1]
@@ -1413,7 +1413,7 @@ def intToIp(ip, version):
         if ip > MAX_IPV6_ADDRESS:
             raise ValueError("IPv6 Address can't be larger than %x: %x" % (MAX_IPV6_ADDRESS, ip))
         l = "%032x" % ip
-        for x in xrange(1, 33):
+        for x in range(1, 33):
             ret = l[-x] + ret
             if x % 4 == 0:
                 ret = ':' + ret
